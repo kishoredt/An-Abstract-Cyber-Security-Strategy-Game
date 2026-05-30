@@ -11,203 +11,192 @@ const CyberClient = Client({
   debug: false,
 });
 
+// ── Start Screen ───────────────────────────────────────────
 function StartScreen({ onStart }) {
-  const [hovering, setHovering] = useState(false);
-
+  const [hover, setHover] = useState(false);
   return (
     <div style={{
-      backgroundColor: '#0a0a1a',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'monospace',
-      color: 'white',
-      backgroundImage: 'radial-gradient(ellipse at center, #1a0a2e 0%, #0a0a1a 70%)',
-      overflow: 'hidden',
-      position: 'relative',
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace',
+      background: 'radial-gradient(ellipse at center, #1a0a2e 0%, #050510 100%)',
+      color: 'white', padding: '20px', position: 'relative', overflow: 'hidden',
     }}>
-
-      {/* Animated background lines */}
+      {/* Grid background */}
       <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundImage: 'linear-gradient(rgba(74,158,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(74,158,255,0.03) 1px, transparent 1px)',
-        backgroundSize: '50px 50px',
-        pointerEvents: 'none',
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: 'linear-gradient(rgba(74,158,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(74,158,255,0.04) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
       }} />
-
-      {/* UK side glow */}
-      <div style={{
-        position: 'absolute', left: 0, top: 0, bottom: 0, width: '40%',
-        background: 'linear-gradient(to right, rgba(74,158,255,0.08), transparent)',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Russia side glow */}
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: '40%',
-        background: 'linear-gradient(to left, rgba(255,74,74,0.08), transparent)',
-        pointerEvents: 'none',
-      }} />
+      {/* Side glows */}
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '35%', background: 'linear-gradient(to right, rgba(74,158,255,0.07), transparent)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '35%', background: 'linear-gradient(to left, rgba(255,74,74,0.07), transparent)', pointerEvents: 'none' }} />
 
       {/* Flags */}
-      <div style={{ display: 'flex', gap: '40px', marginBottom: '20px', fontSize: '50px' }}>
+      <div style={{ display: 'flex', gap: '40px', marginBottom: '18px', fontSize: '52px' }}>
         <span style={{ filter: 'drop-shadow(0 0 15px #4a9eff)' }}>🇬🇧</span>
-        <span style={{ color: '#ffff00', fontSize: '30px', alignSelf: 'center' }}>VS</span>
+        <span style={{ color: '#ffff00', fontSize: '28px', alignSelf: 'center', fontWeight: 'bold' }}>VS</span>
         <span style={{ filter: 'drop-shadow(0 0 15px #ff4a4a)' }}>🇷🇺</span>
       </div>
 
-      {/* Title */}
-      <div style={{
-        fontSize: '13px',
-        color: '#4affff',
-        letterSpacing: '6px',
-        textTransform: 'uppercase',
-        marginBottom: '8px',
-      }}>
-        ⚡ CLASSIFIED ⚡
-      </div>
-
-      <h1 style={{
-        fontSize: '36px',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        margin: '0 0 8px 0',
-        color: '#fff',
-        textShadow: '0 0 30px rgba(74,158,255,0.8)',
-        lineHeight: 1.2,
-      }}>
+      <div style={{ color: '#4affff', fontSize: '11px', letterSpacing: '6px', marginBottom: '8px' }}>⚡ CLASSIFIED ⚡</div>
+      <h1 style={{ fontSize: '38px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 6px', color: '#fff', textShadow: '0 0 30px rgba(74,158,255,0.8)', lineHeight: 1.2 }}>
         CYBER SECURITY
       </h1>
-      <h1 style={{
-        fontSize: '36px',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        margin: '0 0 20px 0',
-        color: '#ffff00',
-        textShadow: '0 0 30px rgba(255,255,0,0.8)',
-      }}>
+      <h1 style={{ fontSize: '38px', fontWeight: 'bold', textAlign: 'center', margin: '0 0 20px', color: '#ffff00', textShadow: '0 0 30px rgba(255,255,0,0.7)' }}>
         STRATEGY GAME
       </h1>
 
-      {/* Divider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '25px', width: '400px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '22px', width: '400px' }}>
         <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right, transparent, #4a9eff)' }} />
-        <div style={{ color: '#4a9eff', fontSize: '16px' }}>🔐</div>
+        <span style={{ color: '#4a9eff', fontSize: '18px' }}>🔐</span>
         <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left, transparent, #ff4a4a)' }} />
       </div>
 
-      {/* Description */}
-      <div style={{
-        maxWidth: '420px',
-        textAlign: 'center',
-        color: '#888',
-        fontSize: '12px',
-        lineHeight: 1.7,
-        marginBottom: '30px',
-        padding: '0 20px',
-      }}>
-        A two-player strategy game based on the UK Cyber Security Strategy.
-        Manage resources, protect your entities, and outsmart your opponent
+      <p style={{ color: '#777', fontSize: '12px', textAlign: 'center', maxWidth: '400px', lineHeight: 1.8, marginBottom: '28px' }}>
+        A two-player strategy game based on the UK Cyber Security Strategy.<br/>
+        Manage resources, protect your entities and outsmart your opponent<br/>
         across 12 turns — January through December 2020.
-      </div>
+      </p>
 
-      {/* Game info boxes */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '35px' }}>
-        {[
-          { icon: '👥', label: '2 Players', sub: 'Hot-seat' },
-          { icon: '🗓️', label: '12 Turns', sub: 'Jan–Dec' },
-          { icon: '⏱️', label: '3 Min', sub: 'Per turn' },
-          { icon: '🎲', label: 'Dice', sub: 'Combat' },
-        ].map(item => (
-          <div key={item.label} style={{
-            backgroundColor: '#111',
-            border: '1px solid #333',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            textAlign: 'center',
-            minWidth: '70px',
-          }}>
-            <div style={{ fontSize: '20px' }}>{item.icon}</div>
-            <div style={{ color: '#fff', fontSize: '11px', fontWeight: 'bold' }}>{item.label}</div>
-            <div style={{ color: '#666', fontSize: '10px' }}>{item.sub}</div>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
+        {[['👥','2 Players','Hot-seat'],['🗓️','12 Turns','Jan–Dec'],['⏱️','3 Min','Per turn'],['🎲','Dice','Combat'],['🃏','Market','Cards']].map(([icon,label,sub])=>(
+          <div key={label} style={{ backgroundColor: '#111', border: '1px solid #222', borderRadius: '8px', padding: '10px 12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px' }}>{icon}</div>
+            <div style={{ color: '#fff', fontSize: '10px', fontWeight: 'bold' }}>{label}</div>
+            <div style={{ color: '#555', fontSize: '9px' }}>{sub}</div>
           </div>
         ))}
       </div>
 
-      {/* Start Button */}
-      <button
-        onClick={onStart}
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
+      <button onClick={onStart}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
         style={{
-          padding: '16px 50px',
-          fontSize: '18px',
-          fontFamily: 'monospace',
-          fontWeight: 'bold',
-          backgroundColor: hovering ? '#ffff00' : 'transparent',
-          color: hovering ? '#000' : '#ffff00',
-          border: '3px solid #ffff00',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          letterSpacing: '3px',
-          textTransform: 'uppercase',
-          transition: 'all 0.2s',
-          boxShadow: hovering ? '0 0 30px rgba(255,255,0,0.6)' : '0 0 10px rgba(255,255,0,0.2)',
-        }}
-      >
+          padding: '16px 54px', fontSize: '18px', fontFamily: 'monospace', fontWeight: 'bold',
+          backgroundColor: hover ? '#ffff00' : 'transparent', color: hover ? '#000' : '#ffff00',
+          border: '3px solid #ffff00', borderRadius: '8px', cursor: 'pointer',
+          letterSpacing: '3px', textTransform: 'uppercase', transition: 'all 0.2s',
+          boxShadow: hover ? '0 0 35px rgba(255,255,0,0.7)' : '0 0 12px rgba(255,255,0,0.2)',
+        }}>
         ▶ START GAME
       </button>
 
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: '20px', color: '#333', fontSize: '10px' }}>
+      <div style={{ position: 'absolute', bottom: '16px', color: '#2a2a2a', fontSize: '10px' }}>
         Based on © Andreas Haggman — Cyber Security Strategy Game
       </div>
     </div>
   );
 }
 
-function GameScreen() {
+// ── Pass Device Screen ─────────────────────────────────────
+function PassDeviceScreen({ team, onReady }) {
+  const [hover, setHover] = useState(false);
+  const isUK = team === 'UK';
+  const color = isUK ? '#4a9eff' : '#ff4a4a';
+  const flag = isUK ? '🇬🇧' : '🇷🇺';
+
   return (
-    <div>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        backgroundColor: '#070710',
-        padding: '6px 15px',
-        borderBottom: '1px solid #222',
-      }}>
-        <span style={{ color: '#4a9eff', fontFamily: 'monospace', fontSize: '12px', fontWeight: 'bold' }}>
-          🇬🇧 Player 1 — UK
-        </span>
-        <span style={{ color: '#ffff00', fontFamily: 'monospace', fontSize: '12px' }}>
-          🔐 Cyber Security Strategy Game
-        </span>
-        <span style={{ color: '#ff4a4a', fontFamily: 'monospace', fontSize: '12px', fontWeight: 'bold' }}>
-          Russia — Player 2 🇷🇺
-        </span>
-      </div>
-      <div style={{ display: 'flex' }}>
-        <div style={{ flex: 1, borderRight: '2px solid #1a1a2e' }}>
-          <CyberClient playerID="0" />
-        </div>
-        <div style={{ flex: 1 }}>
-          <CyberClient playerID="1" />
-        </div>
-      </div>
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace',
+      backgroundColor: '#050510', color: 'white', padding: '20px',
+    }}>
+      <div style={{ fontSize: '80px', marginBottom: '20px', filter: `drop-shadow(0 0 20px ${color})` }}>{flag}</div>
+      <h2 style={{ color, fontSize: '28px', margin: '0 0 10px', textShadow: `0 0 20px ${color}` }}>
+        {team} TEAM'S TURN
+      </h2>
+      <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', marginBottom: '12px', lineHeight: 1.8 }}>
+        Pass the device to the <span style={{ color, fontWeight: 'bold' }}>{team}</span> player.<br/>
+        Make sure the other player looks away!
+      </p>
+      <div style={{ width: '200px', height: '2px', background: `linear-gradient(to right, transparent, ${color}, transparent)`, marginBottom: '30px' }} />
+      <button onClick={onReady}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        style={{
+          padding: '14px 44px', fontSize: '16px', fontFamily: 'monospace', fontWeight: 'bold',
+          backgroundColor: hover ? color : 'transparent', color: hover ? '#000' : color,
+          border: `3px solid ${color}`, borderRadius: '8px', cursor: 'pointer',
+          letterSpacing: '2px', transition: 'all 0.2s',
+          boxShadow: hover ? `0 0 30px ${color}` : `0 0 8px ${color}44`,
+        }}>
+        ▶ WE'RE READY
+      </button>
     </div>
   );
 }
 
-function App() {
-  const [gameStarted, setGameStarted] = useState(false);
+// ── App ────────────────────────────────────────────────────
+export default function App() {
+  const [phase, setPhase] = useState('start');       // start | pass | game
+  const [activePlayer, setActivePlayer] = useState('0'); // '0' = UK, '1' = Russia
+  const [showPass, setShowPass] = useState(false);
+  const [nextPlayer, setNextPlayer] = useState(null);
 
-  if (!gameStarted) {
-    return <StartScreen onStart={() => setGameStarted(true)} />;
+  // Called when a player ends their turn — show pass screen
+  const handleTurnChange = (newPlayer) => {
+    setNextPlayer(newPlayer);
+    setShowPass(true);
+  };
+
+  if (phase === 'start') {
+    return <StartScreen onStart={() => { setPhase('pass'); setNextPlayer('0'); setShowPass(true); }} />;
   }
 
-  return <GameScreen />;
-}
+  if (showPass) {
+    const team = nextPlayer === '0' ? 'UK' : 'Russia';
+    return (
+      <PassDeviceScreen
+        team={team}
+        onReady={() => {
+          setActivePlayer(nextPlayer);
+          setShowPass(false);
+          setPhase('game');
+        }}
+      />
+    );
+  }
 
-export default App;
+  // Wrap the Board to intercept turn changes
+  const WrappedBoard = (props) => {
+    const originalEvents = props.events;
+    const wrappedEvents = {
+      ...originalEvents,
+      endTurn: (...args) => {
+        const next = props.ctx.currentPlayer === '0' ? '1' : '0';
+        originalEvents.endTurn(...args);
+        handleTurnChange(next);
+      },
+    };
+    return <Board {...props} events={wrappedEvents} />;
+  };
+
+  const ActiveClient = Client({
+    game: CyberSecurityGame,
+    board: WrappedBoard,
+    multiplayer: Local(),
+    debug: false,
+  });
+
+  return (
+    <div>
+      {/* Thin header */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        backgroundColor: '#070712', borderBottom: '1px solid #1a1a2a',
+        padding: '5px 16px',
+      }}>
+        <span style={{ color: '#4a9eff', fontFamily: 'monospace', fontSize: '11px', fontWeight: 'bold' }}>
+          🇬🇧 Player 1 — UK
+        </span>
+        <span style={{ color: '#ffff00', fontFamily: 'monospace', fontSize: '11px' }}>
+          🔐 Cyber Security Strategy Game
+        </span>
+        <span style={{ color: '#ff4a4a', fontFamily: 'monospace', fontSize: '11px', fontWeight: 'bold' }}>
+          Russia — Player 2 🇷🇺
+        </span>
+      </div>
+      <ActiveClient playerID={activePlayer} />
+    </div>
+  );
+}
