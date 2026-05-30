@@ -49,11 +49,14 @@ const INITIAL_ENTITIES = {
 };
 
 const BLACK_MARKET_ITEMS = [
-  { id: 'bm1', name: 'Zero-Day Exploit',    description: 'Next attack ignores backfire', effect: 'no_backfire',    currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm2', name: 'Disinformation Pack', description: 'Target loses 2 Vitality now', effect: 'instant_damage', currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm3', name: 'Resource Cache',      description: 'Gain 5 Resource immediately', effect: 'gain_resource',  currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm4', name: 'Cyber Shield',        description: 'Reduce next attack damage by 3', effect: 'shield',      currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm5', name: 'Botnet',              description: 'Double next attack damage',   effect: 'double_damage',  currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm1', name: 'Zero-Day Exploit',    icon: '💣', description: 'Your next attack cannot backfire on you',         effect: 'no_backfire',    minBid: 3, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm2', name: 'Disinformation Pack', icon: '📰', description: 'Enemy Government immediately loses 2 Vitality',   effect: 'instant_damage', minBid: 2, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm3', name: 'Resource Cache',      icon: '💰', description: 'Your Government immediately gains 5 Resource',    effect: 'gain_resource',  minBid: 2, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm4', name: 'Cyber Shield',        icon: '🛡️', description: 'Reduce the next attack against you by 3 damage',  effect: 'shield',         minBid: 3, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm5', name: 'Botnet',              icon: '🤖', description: 'Your next attack deals double damage',            effect: 'double_damage',  minBid: 4, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm6', name: 'Sleeper Agent',       icon: '🕵️', description: 'Steal 3 Resource from enemy Government',         effect: 'steal_resource', minBid: 3, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm7', name: 'EMP Strike',          icon: '⚡', description: 'Target entity loses all its Resource',            effect: 'emp',            minBid: 4, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm8', name: 'Propaganda Wave',     icon: '📢', description: 'Your Electorate/Trolls gain 2 Vitality each',     effect: 'propaganda',     minBid: 2, currentBid: 0, bidder: null, awarded: null },
 ];
 
 export const CyberSecurityGame = {
@@ -73,9 +76,7 @@ export const CyberSecurityGame = {
     activeEffects: { UK: [], Russia: [] },
     lastDieRoll: null,
     lastDamage: null,
-    lastAttacker: null,
-    lastTarget: null,
-    pendingAttack: null, // stores attack params waiting for dice roll
+    pendingAttack: null,
   }),
 
   turn: {
@@ -86,16 +87,14 @@ export const CyberSecurityGame = {
       G.actedThisTurn = [];
       G.lastDieRoll = null;
       G.lastDamage = null;
-      G.lastAttacker = null;
-      G.lastTarget = null;
       G.pendingAttack = null;
-      G.log.push(`📅 ${MONTHS[G.currentTurn - 1]}: ${team} Government receives 3 Resource`);
+      G.log.push(`📅 ${MONTHS[G.currentTurn - 1]}: ${team} Government +3 Resource`);
 
-      // Award pending black market items
+      // Award won black market items
       G.blackMarket.forEach(item => {
         if (item.awarded === team) {
           G.inventory[team].push({ ...item });
-          G.log.push(`🛒 ${team} received: ${item.name}`);
+          G.log.push(`🃏 ${team} collected: ${item.icon} ${item.name}`);
           item.awarded = null;
           item.bidder = null;
           item.currentBid = 0;
@@ -105,6 +104,7 @@ export const CyberSecurityGame = {
 
     onEnd: ({ G, ctx }) => {
       const team = ctx.currentPlayer === '0' ? 'UK' : 'Russia';
+      // Award items where opponent didn't outbid
       G.blackMarket.forEach(item => {
         if (item.bidder === team && item.awarded === null) {
           item.awarded = team;
@@ -121,79 +121,67 @@ export const CyberSecurityGame = {
       const team = ctx.currentPlayer === '0' ? 'UK' : 'Russia';
       const from = G.entities[fromId];
       const to = G.entities[toId];
-
       if (!from || !to) return INVALID_MOVE;
       if (from.team !== team) return INVALID_MOVE;
       if (!CONNECTIONS[fromId]?.includes(toId)) return INVALID_MOVE;
       if (amount < 1 || amount > 5) return INVALID_MOVE;
       if (from.resource < amount) return INVALID_MOVE;
-
       from.resource -= amount;
       to.resource += amount;
-      // NOTE: do NOT add to actedThisTurn for distribute — allows multiple distributes
-      G.log.push(`📦 ${from.name} → ${to.name}: ${amount} Resource`);
+      G.log.push(`📦 ${from.name} → ${to.name}: ${amount} RES`);
     },
 
     revitalise: ({ G, ctx }, entityId, vitalityAmount) => {
       const team = ctx.currentPlayer === '0' ? 'UK' : 'Russia';
       const entity = G.entities[entityId];
       const cost = REVITALISE_COSTS[vitalityAmount];
-
       if (!entity) return INVALID_MOVE;
       if (entity.team !== team) return INVALID_MOVE;
       if (G.actedThisTurn.includes(entityId)) return INVALID_MOVE;
       if (!cost) return INVALID_MOVE;
       if (entity.resource < cost) return INVALID_MOVE;
-
       entity.resource -= cost;
       entity.vitality += vitalityAmount;
       G.actedThisTurn.push(entityId);
-      G.log.push(`💚 ${entity.name}: -${cost} RES → +${vitalityAmount} VIT`);
+      G.log.push(`💚 ${entity.name}: -${cost} RES → +${vitalityAmount} VIT (Total VIT: ${entity.vitality})`);
     },
 
-    // Stage 1: prepare attack (before dice roll)
     prepareAttack: ({ G, ctx }, attackerId, resourceSpent) => {
       if (G.currentTurn === 1) return INVALID_MOVE;
       const team = ctx.currentPlayer === '0' ? 'UK' : 'Russia';
       const attacker = G.entities[attackerId];
-
       if (!attacker) return INVALID_MOVE;
       if (attacker.team !== team) return INVALID_MOVE;
       if (G.actedThisTurn.includes(attackerId)) return INVALID_MOVE;
       if (resourceSpent < 1 || resourceSpent > 6) return INVALID_MOVE;
       if (attacker.resource < resourceSpent) return INVALID_MOVE;
-
       G.pendingAttack = { attackerId, resourceSpent, team };
       G.log.push(`⚔️ ${attacker.name} prepares attack (${resourceSpent} RES) — Roll the dice!`);
     },
 
-    // Stage 2: roll dice and resolve attack
-    rollDiceAndAttack: ({ G, ctx }) => {
+    rollDiceAndAttack: ({ G }) => {
       if (!G.pendingAttack) return INVALID_MOVE;
-
       const { attackerId, resourceSpent, team } = G.pendingAttack;
       const attacker = G.entities[attackerId];
       const targetId = ATTACK_TARGETS[team];
       const target = G.entities[targetId];
+      const enemyTeam = team === 'UK' ? 'Russia' : 'UK';
 
       const dieRoll = Math.ceil(Math.random() * 6);
-      // Formula: Damage = (Resource spent - Die roll) - 1
-      const damage = (resourceSpent - dieRoll) - 1;
+      // Damage = (Resource spent - Die roll) - 1
+      const rawDamage = (resourceSpent - dieRoll) - 1;
 
       G.lastDieRoll = dieRoll;
-      G.lastDamage = damage;
-      G.lastAttacker = attackerId;
-      G.lastTarget = targetId;
+      G.lastDamage = rawDamage;
 
       attacker.resource -= resourceSpent;
 
-      const hasDoubleEffect = G.activeEffects[team].includes('double_damage');
+      const hasDouble = G.activeEffects[team].includes('double_damage');
       const hasNoBackfire = G.activeEffects[team].includes('no_backfire');
-      const enemyTeam = team === 'UK' ? 'Russia' : 'UK';
-      const targetHasShield = G.activeEffects[enemyTeam].includes('shield');
+      const hasShield = G.activeEffects[enemyTeam].includes('shield');
 
-      let finalDamage = hasDoubleEffect ? damage * 2 : damage;
-      if (targetHasShield && finalDamage > 0) finalDamage = Math.max(0, finalDamage - 3);
+      let finalDamage = hasDouble ? rawDamage * 2 : rawDamage;
+      if (hasShield && finalDamage > 0) finalDamage = Math.max(0, finalDamage - 3);
 
       if (finalDamage > 0) {
         target.vitality -= finalDamage;
@@ -201,10 +189,10 @@ export const CyberSecurityGame = {
           const residual = Math.floor(finalDamage / 2);
           if (residual > 0) {
             G.entities[connId].vitality -= residual;
-            G.log.push(`💥 Residual: ${G.entities[connId].name} -${residual} VIT`);
+            G.log.push(`💥 Residual → ${G.entities[connId].name}: -${residual} VIT`);
           }
         });
-        G.log.push(`🎲 Roll: ${dieRoll} | Spent: ${resourceSpent} | Damage: ${finalDamage} → ${target.name}`);
+        G.log.push(`🎲 Roll:${dieRoll} | Spent:${resourceSpent} | DMG:${finalDamage} → ${target.name} (VIT:${target.vitality})`);
 
         const destroyed = Object.values(G.entities).find(e => e.vitality <= 0);
         if (destroyed) {
@@ -216,11 +204,12 @@ export const CyberSecurityGame = {
         }
       } else if (!hasNoBackfire && finalDamage < 0) {
         attacker.vitality += finalDamage;
-        G.log.push(`🔥 BACKFIRE! Roll:${dieRoll} | Spent:${resourceSpent} | ${attacker.name} -${Math.abs(finalDamage)} VIT`);
+        G.log.push(`🔥 BACKFIRE! Roll:${dieRoll} | ${attacker.name} ${finalDamage} VIT`);
       } else {
         G.log.push(`💨 MISS! Roll:${dieRoll} | Spent:${resourceSpent} | No damage`);
       }
 
+      // Clear used effects
       G.activeEffects[team] = G.activeEffects[team].filter(e => e !== 'double_damage' && e !== 'no_backfire');
       G.activeEffects[enemyTeam] = G.activeEffects[enemyTeam].filter(e => e !== 'shield');
       G.actedThisTurn.push(attackerId);
@@ -232,10 +221,13 @@ export const CyberSecurityGame = {
       const entity = G.entities[entityId];
       if (!entity || entity.team !== team || !entity.canBlackMarket) return INVALID_MOVE;
       if (G.actedThisTurn.includes(entityId)) return INVALID_MOVE;
-
       const item = G.blackMarket.find(i => i.id === itemId);
-      if (!item || bidAmount <= item.currentBid || entity.resource < bidAmount) return INVALID_MOVE;
+      if (!item) return INVALID_MOVE;
+      if (bidAmount < item.minBid) return INVALID_MOVE;
+      if (bidAmount <= item.currentBid) return INVALID_MOVE;
+      if (entity.resource < bidAmount) return INVALID_MOVE;
 
+      // Refund previous bidder
       if (item.bidder && item.bidder !== team) {
         const prevGovId = item.bidder === 'UK' ? 'uk_gov' : 'ru_gov';
         G.entities[prevGovId].resource += item.currentBid;
@@ -246,26 +238,41 @@ export const CyberSecurityGame = {
       item.bidder = team;
       item.awarded = null;
       G.actedThisTurn.push(entityId);
-      G.log.push(`🛒 ${team} bid ${bidAmount} on ${item.name}`);
+      G.log.push(`🃏 ${team} bid ${bidAmount} RES on ${item.icon} ${item.name}`);
     },
 
     useItem: ({ G, ctx }, itemId) => {
       const team = ctx.currentPlayer === '0' ? 'UK' : 'Russia';
       const itemIndex = G.inventory[team].findIndex(i => i.id === itemId);
       if (itemIndex === -1) return INVALID_MOVE;
-
       const item = G.inventory[team][itemIndex];
+      const enemyTeam = team === 'UK' ? 'Russia' : 'UK';
+      const govId = team === 'UK' ? 'uk_gov' : 'ru_gov';
+      const enemyGovId = team === 'UK' ? 'ru_gov' : 'uk_gov';
+
       if (item.effect === 'gain_resource') {
-        const govId = team === 'UK' ? 'uk_gov' : 'ru_gov';
         G.entities[govId].resource += 5;
-        G.log.push(`✨ ${team} used ${item.name}: +5 Resource`);
+        G.log.push(`✨ ${item.icon} ${item.name}: ${team} Govt +5 RES`);
       } else if (item.effect === 'instant_damage') {
-        const targetId = ATTACK_TARGETS[team];
-        G.entities[targetId].vitality -= 2;
-        G.log.push(`✨ ${team} used ${item.name}: Enemy -2 VIT`);
+        G.entities[enemyGovId].vitality -= 2;
+        G.log.push(`✨ ${item.icon} ${item.name}: Enemy Govt -2 VIT`);
+      } else if (item.effect === 'steal_resource') {
+        const stolen = Math.min(3, G.entities[enemyGovId].resource);
+        G.entities[enemyGovId].resource -= stolen;
+        G.entities[govId].resource += stolen;
+        G.log.push(`✨ ${item.icon} ${item.name}: Stole ${stolen} RES from enemy`);
+      } else if (item.effect === 'emp') {
+        G.entities[enemyGovId].resource = 0;
+        G.log.push(`✨ ${item.icon} ${item.name}: Enemy Govt RES → 0`);
+      } else if (item.effect === 'propaganda') {
+        const targets = team === 'UK'
+          ? [G.entities['electorate']]
+          : [G.entities['trolls']];
+        targets.forEach(e => { e.vitality += 2; });
+        G.log.push(`✨ ${item.icon} ${item.name}: +2 VIT to people entity`);
       } else {
         G.activeEffects[team].push(item.effect);
-        G.log.push(`✨ ${team} activated ${item.name}`);
+        G.log.push(`✨ ${item.icon} ${item.name}: Effect activated`);
       }
       G.inventory[team].splice(itemIndex, 1);
     },
