@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Client } from 'boardgame.io/react';
 import { Local } from 'boardgame.io/multiplayer';
 import { CyberSecurityGame } from './Game';
-import { Board } from './Board';
+import { Board } from './components/Board';
 
 const CyberClient = Client({
   game: CyberSecurityGame,
