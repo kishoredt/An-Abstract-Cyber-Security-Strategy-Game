@@ -1,4 +1,5 @@
 import { INVALID_MOVE } from 'boardgame.io/core';
+import { enumerate } from './ai/aiConfig';
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -49,14 +50,14 @@ const INITIAL_ENTITIES = {
 };
 
 const BLACK_MARKET_ITEMS = [
-  { id: 'bm1', name: 'Zero-Day Exploit',    icon: '💣', description: 'Your next attack cannot backfire on you',         effect: 'no_backfire',    minBid: 3, currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm2', name: 'Disinformation Pack', icon: '📰', description: 'Enemy Government immediately loses 2 Vitality',   effect: 'instant_damage', minBid: 2, currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm3', name: 'Resource Cache',      icon: '💰', description: 'Your Government immediately gains 5 Resource',    effect: 'gain_resource',  minBid: 2, currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm4', name: 'Cyber Shield',        icon: '🛡️', description: 'Reduce the next attack against you by 3 damage',  effect: 'shield',         minBid: 3, currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm5', name: 'Botnet',              icon: '🤖', description: 'Your next attack deals double damage',            effect: 'double_damage',  minBid: 4, currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm6', name: 'Sleeper Agent',       icon: '🕵️', description: 'Steal 3 Resource from enemy Government',         effect: 'steal_resource', minBid: 3, currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm7', name: 'EMP Strike',          icon: '⚡', description: 'Target entity loses all its Resource',            effect: 'emp',            minBid: 4, currentBid: 0, bidder: null, awarded: null },
-  { id: 'bm8', name: 'Propaganda Wave',     icon: '📢', description: 'Your Electorate/Trolls gain 2 Vitality each',     effect: 'propaganda',     minBid: 2, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm1', name: 'Zero-Day Exploit',    icon: '💣', description: 'Your next attack cannot backfire',           effect: 'no_backfire',    minBid: 3, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm2', name: 'Disinformation Pack', icon: '📰', description: 'Enemy Government loses 2 Vitality now',     effect: 'instant_damage', minBid: 2, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm3', name: 'Resource Cache',      icon: '💰', description: 'Your Government gains 5 Resource now',      effect: 'gain_resource',  minBid: 2, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm4', name: 'Cyber Shield',        icon: '🛡️', description: 'Reduce next attack against you by 3',       effect: 'shield',         minBid: 3, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm5', name: 'Botnet',              icon: '🤖', description: 'Your next attack deals double damage',       effect: 'double_damage',  minBid: 4, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm6', name: 'Sleeper Agent',       icon: '🕵️', description: 'Steal 3 Resource from enemy Government',    effect: 'steal_resource', minBid: 3, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm7', name: 'EMP Strike',          icon: '⚡', description: 'Enemy Government loses all Resource',        effect: 'emp',            minBid: 4, currentBid: 0, bidder: null, awarded: null },
+  { id: 'bm8', name: 'Propaganda Wave',     icon: '📢', description: 'Your people entity gains 2 Vitality',       effect: 'propaganda',     minBid: 2, currentBid: 0, bidder: null, awarded: null },
 ];
 
 export const CyberSecurityGame = {
@@ -246,7 +247,6 @@ export const CyberSecurityGame = {
       const itemIndex = G.inventory[team].findIndex(i => i.id === itemId);
       if (itemIndex === -1) return INVALID_MOVE;
       const item = G.inventory[team][itemIndex];
-      const enemyTeam = team === 'UK' ? 'Russia' : 'UK';
       const govId = team === 'UK' ? 'uk_gov' : 'ru_gov';
       const enemyGovId = team === 'UK' ? 'ru_gov' : 'uk_gov';
 
@@ -265,10 +265,8 @@ export const CyberSecurityGame = {
         G.entities[enemyGovId].resource = 0;
         G.log.push(`✨ ${item.icon} ${item.name}: Enemy Govt RES → 0`);
       } else if (item.effect === 'propaganda') {
-        const targets = team === 'UK'
-          ? [G.entities['electorate']]
-          : [G.entities['trolls']];
-        targets.forEach(e => { e.vitality += 2; });
+        const targetEntity = team === 'UK' ? G.entities['electorate'] : G.entities['trolls'];
+        targetEntity.vitality += 2;
         G.log.push(`✨ ${item.icon} ${item.name}: +2 VIT to people entity`);
       } else {
         G.activeEffects[team].push(item.effect);
@@ -293,5 +291,11 @@ export const CyberSecurityGame = {
       const winner = G.vpUK > G.vpRussia ? 'UK' : G.vpRussia > G.vpUK ? 'Russia' : 'Draw';
       return { winner };
     }
+  },
+
+  // AI configuration — used by boardgame.io's bot system (MCTSBot etc.)
+  // when running in single-player "VS AI" mode.
+  ai: {
+    enumerate,
   },
 };
