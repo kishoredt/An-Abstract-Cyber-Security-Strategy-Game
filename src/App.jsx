@@ -5,7 +5,7 @@ import { CyberSecurityGame } from './Game';
 import { Board } from './components/Board';
 import { makeDifficultyBot, AI_DIFFICULTIES } from './ai/aiConfig';
 
-// ── Start Screen ───────────────────────────────────────────
+// Start Screen
 function StartScreen({ onSelectMode }) {
   const [hoverBtn, setHoverBtn] = useState(null);
 
@@ -96,7 +96,7 @@ function StartScreen({ onSelectMode }) {
   );
 }
 
-// ── AI Difficulty Screen ───────────────────────────────────
+// AI Difficulty Screen
 function AIDifficultyScreen({ onSelect, onBack }) {
   const [hover, setHover] = useState(null);
 
@@ -132,7 +132,7 @@ function AIDifficultyScreen({ onSelect, onBack }) {
   );
 }
 
-// ── Pass Device Screen (2-player mode) ─────────────────────
+// Pass Device Screen (2-player mode)
 function PassDeviceScreen({ team, onReady }) {
   const [hover, setHover] = useState(false);
   const isUK = team === 'UK';
@@ -177,7 +177,7 @@ function TopHeader({ aiMode }) {
   );
 }
 
-// ── 2-Player Game ────────────────────────────────────────────
+// 2-Player Game
 function TwoPlayerGame() {
   const [activePlayer, setActivePlayer] = useState('0');
   const [showPass, setShowPass] = useState(true);
@@ -213,14 +213,12 @@ function TwoPlayerGame() {
   );
 }
 
-// ── AI Game — uses boardgame.io's built-in bot system ───────
+// AI — uses boardgame.io's built-in bot
 function AIGame({ difficultyKey }) {
   const GameClientRef = useRef(null);
 
   if (!GameClientRef.current) {
     const iterations = AI_DIFFICULTIES[difficultyKey].iterations;
-    // Get a BOT CLASS pre-configured with the chosen difficulty.
-    // boardgame.io's LocalMaster will instantiate this itself via `new BotClass(...)`.
     const RussiaBotClass = makeDifficultyBot(iterations);
 
     GameClientRef.current = Client({
@@ -243,7 +241,7 @@ function AIGame({ difficultyKey }) {
   );
 }
 
-// ── Main App ──────────────────────────────────────────────
+// Main App
 export default function App() {
   const [phase, setPhase] = useState('start');
   const [aiDifficulty, setAiDifficulty] = useState('medium');

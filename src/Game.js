@@ -105,7 +105,6 @@ export const CyberSecurityGame = {
 
     onEnd: ({ G, ctx }) => {
       const team = ctx.currentPlayer === '0' ? 'UK' : 'Russia';
-      // Award items where opponent didn't outbid
       G.blackMarket.forEach(item => {
         if (item.bidder === team && item.awarded === null) {
           item.awarded = team;
@@ -293,8 +292,7 @@ export const CyberSecurityGame = {
     }
   },
 
-  // AI configuration — used by boardgame.io's bot system (MCTSBot etc.)
-  // when running in single-player "VS AI" mode.
+  // AI configuration
   ai: {
     enumerate,
   },

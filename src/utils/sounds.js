@@ -1,7 +1,3 @@
-/**
- * Sound utility — generates sounds using Web Audio API
- * No external files needed
- */
 export function playSound(type) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -78,6 +74,6 @@ export function playSound(type) {
         break;
     }
   } catch (e) {
-    // Silently fail if audio not supported
+    // Silently fail if no audio
   }
 }

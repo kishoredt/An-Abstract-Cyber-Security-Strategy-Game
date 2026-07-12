@@ -303,10 +303,10 @@ export function Board({ G, ctx, moves, isActive, events }) {
         </div>
       )}
 
-      {/* MAIN 3-COLUMN LAYOUT */}
+      {/* 3-COLUMN LAYOUT */}
       <div style={{ display:'flex', flex:1, padding:'14px', gap:'14px', alignItems:'flex-start' }}>
 
-        {/* ── LEFT: UK TEAM ── */}
+        {/* UK TEAM */}
         <div style={{ width:'240px', flexShrink:0, backgroundColor:'#080e1a', borderRadius:'12px', border:'2px solid #1a3a5a', padding:'12px', display:'flex', flexDirection:'column', gap:'8px' }}>
           <div style={{ color:'#4a9eff', fontWeight:'bold', textAlign:'center', fontSize:'15px', borderBottom:'1px solid #1a3a5a', paddingBottom:'8px' }}>
             🇬🇧 UK TEAM
@@ -324,10 +324,10 @@ export function Board({ G, ctx, moves, isActive, events }) {
           </div>
         </div>
 
-        {/* ── CENTRE COLUMN ── */}
+        {/* CENTRE COLUMN */}
         <div style={{ flex:1, display:'flex', flexDirection:'column', gap:'12px', minWidth:0 }}>
 
-          {/* ACTION PANEL - TOP CENTRE */}
+          {/* ACTION PANEL */}
           <div style={{ backgroundColor:'#0a0a1e', borderRadius:'12px', border:'1px solid #2a2a50', padding:'14px' }}>
             <div style={{ color:'#ffff00', textAlign:'center', fontWeight:'bold', fontSize:'14px', borderBottom:'1px solid #2a2a40', paddingBottom:'8px', marginBottom:'10px' }}>
               ⚡ ACTION PANEL
@@ -504,7 +504,7 @@ export function Board({ G, ctx, moves, isActive, events }) {
           </div>
         </div>
 
-        {/* ── RIGHT: RUSSIA TEAM ── */}
+        {/* RUSSIA TEAM */}
         <div style={{ width:'240px', flexShrink:0, backgroundColor:'#180808', borderRadius:'12px', border:'2px solid #5a1a1a', padding:'12px', display:'flex', flexDirection:'column', gap:'8px' }}>
           <div style={{ color:'#ff4a4a', fontWeight:'bold', textAlign:'center', fontSize:'15px', borderBottom:'1px solid #5a1a1a', paddingBottom:'8px' }}>
             🇷🇺 RUSSIA TEAM

@@ -3,7 +3,7 @@ export const MONTHS = [
   'July','August','September','October','November','December'
 ];
 
-export const TURN_TIME = 180; // 3 minutes in seconds
+export const TURN_TIME = 180; // 3 minutes
 
 export const REVITALISE_COSTS = { 1: 1, 2: 3, 3: 6, 4: 10 };
 
