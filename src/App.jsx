@@ -3,10 +3,11 @@ import { Client } from 'boardgame.io/react';
 import { Local } from 'boardgame.io/multiplayer';
 import { CyberSecurityGame } from './Game';
 import { Board } from './components/Board';
+import { RulesScreen } from './components/RulesScreen';
 import { makeDifficultyBot, AI_DIFFICULTIES } from './ai/aiConfig';
 
 // Start Screen
-function StartScreen({ onSelectMode }) {
+function StartScreen({ onSelectMode, onShowRules }) {
   const [hoverBtn, setHoverBtn] = useState(null);
 
   const ModeButton = ({ id, icon, title, subtitle, color, onClick }) => (
@@ -38,6 +39,7 @@ function StartScreen({ onSelectMode }) {
       background: 'radial-gradient(ellipse at center, #1a0a2e 0%, #050510 100%)',
       color: 'white', padding: '20px', position: 'relative', overflow: 'hidden',
     }}>
+      {/* Grid background */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
         backgroundImage: 'linear-gradient(rgba(74,158,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(74,158,255,0.04) 1px, transparent 1px)',
@@ -46,6 +48,7 @@ function StartScreen({ onSelectMode }) {
       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '35%', background: 'linear-gradient(to right, rgba(74,158,255,0.07), transparent)', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '35%', background: 'linear-gradient(to left, rgba(255,74,74,0.07), transparent)', pointerEvents: 'none' }} />
 
+      {/* Flags */}
       <div style={{ display: 'flex', gap: '40px', marginBottom: '18px', fontSize: '52px' }}>
         <span style={{ filter: 'drop-shadow(0 0 15px #4a9eff)' }}>🇬🇧</span>
         <span style={{ color: '#ffff00', fontSize: '28px', alignSelf: 'center', fontWeight: 'bold' }}>VS</span>
@@ -72,13 +75,31 @@ function StartScreen({ onSelectMode }) {
         across 12 turns — January through December 2020.
       </p>
 
+      {/* Mode buttons */}
       <div style={{ color: '#aaa', fontSize: '13px', marginBottom: '16px', letterSpacing: '2px' }}>SELECT GAME MODE</div>
-
-      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '30px' }}>
+      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '24px' }}>
         <ModeButton id="2p" icon="👥" title="2 PLAYERS" subtitle="Hot-seat — pass the device" color="#4aff4a" onClick={() => onSelectMode('2player')} />
         <ModeButton id="ai" icon="🤖" title="VS AI" subtitle="Play against the computer" color="#ff8800" onClick={() => onSelectMode('ai')} />
       </div>
 
+      {/* How to Play button */}
+      <button
+        onClick={onShowRules}
+        onMouseEnter={() => setHoverBtn('rules')}
+        onMouseLeave={() => setHoverBtn(null)}
+        style={{
+          padding: '10px 30px', fontSize: '13px', fontFamily: 'monospace',
+          backgroundColor: hoverBtn === 'rules' ? '#1a1a3a' : 'transparent',
+          color: '#4a9eff', border: '2px solid #4a9eff',
+          borderRadius: '8px', cursor: 'pointer', letterSpacing: '2px',
+          transition: 'all 0.2s', marginBottom: '28px',
+          boxShadow: hoverBtn === 'rules' ? '0 0 20px rgba(74,158,255,0.3)' : 'none',
+        }}
+      >
+        📖 HOW TO PLAY
+      </button>
+
+      {/* Info badges */}
       <div style={{ display: 'flex', gap: '12px' }}>
         {[['🗓️','12 Turns','Jan–Dec'],['⏱️','3 Min','Per turn'],['🎲','Dice','Combat'],['🃏','Market','Cards']].map(([icon,label,sub])=>(
           <div key={label} style={{ backgroundColor: '#111', border: '1px solid #222', borderRadius: '8px', padding: '8px 10px', textAlign: 'center' }}>
@@ -90,22 +111,20 @@ function StartScreen({ onSelectMode }) {
       </div>
 
       <div style={{ position: 'absolute', bottom: '16px', color: '#2a2a2a', fontSize: '10px' }}>
-        Based on © Andreas Haggman — Cyber Security Strategy Game
+        Based on © Andreas Haggman — Cyber Security Strategy Game · Heriot-Watt University Dissertation
       </div>
     </div>
   );
 }
 
-// AI Difficulty Screen
+// ── AI Difficulty Screen ───────────────────────────────────
 function AIDifficultyScreen({ onSelect, onBack }) {
   const [hover, setHover] = useState(null);
-
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', backgroundColor: '#050510', color: 'white', padding: '20px' }}>
       <div style={{ fontSize: '50px', marginBottom: '10px' }}>🤖</div>
       <h2 style={{ color: '#ff8800', fontSize: '26px', marginBottom: '6px' }}>SELECT AI DIFFICULTY</h2>
       <p style={{ color: '#777', fontSize: '12px', marginBottom: '28px' }}>You will play as 🇬🇧 UK against the AI playing 🇷🇺 Russia</p>
-
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '320px' }}>
         {Object.entries(AI_DIFFICULTIES).map(([key, lvl]) => (
           <button key={key} onClick={() => onSelect(key)}
@@ -124,7 +143,6 @@ function AIDifficultyScreen({ onSelect, onBack }) {
           </button>
         ))}
       </div>
-
       <button onClick={onBack} style={{ marginTop: '30px', padding: '8px 20px', backgroundColor: 'transparent', color: '#666', border: '1px solid #444', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontFamily: 'monospace' }}>
         ← Back
       </button>
@@ -132,13 +150,12 @@ function AIDifficultyScreen({ onSelect, onBack }) {
   );
 }
 
-// Pass Device Screen (2-player mode)
+// Pass Device Screen
 function PassDeviceScreen({ team, onReady }) {
   const [hover, setHover] = useState(false);
   const isUK = team === 'UK';
   const color = isUK ? '#4a9eff' : '#ff4a4a';
   const flag = isUK ? '🇬🇧' : '🇷🇺';
-
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', backgroundColor: '#050510', color: 'white', padding: '20px' }}>
       <div style={{ fontSize: '80px', marginBottom: '20px', filter: `drop-shadow(0 0 20px ${color})` }}>{flag}</div>
@@ -213,26 +230,20 @@ function TwoPlayerGame() {
   );
 }
 
-// AI — uses boardgame.io's built-in bot
+// AI Game
 function AIGame({ difficultyKey }) {
   const GameClientRef = useRef(null);
-
   if (!GameClientRef.current) {
     const iterations = AI_DIFFICULTIES[difficultyKey].iterations;
     const RussiaBotClass = makeDifficultyBot(iterations);
-
     GameClientRef.current = Client({
       game: CyberSecurityGame,
       board: Board,
       debug: false,
-      multiplayer: Local({
-        bots: { '1': RussiaBotClass },
-      }),
+      multiplayer: Local({ bots: { '1': RussiaBotClass } }),
     });
   }
-
   const GameClient = GameClientRef.current;
-
   return (
     <div>
       <TopHeader aiMode />
@@ -245,20 +256,40 @@ function AIGame({ difficultyKey }) {
 export default function App() {
   const [phase, setPhase] = useState('start');
   const [aiDifficulty, setAiDifficulty] = useState('medium');
+  const [prevPhase, setPrevPhase] = useState('start');
+
+  const goTo = (next) => {
+    setPrevPhase(phase);
+    setPhase(next);
+  };
 
   if (phase === 'start') {
     return (
-      <StartScreen onSelectMode={(mode) => setPhase(mode === '2player' ? '2player' : 'aiDifficulty')} />
+      <StartScreen
+        onSelectMode={(mode) => goTo(mode === '2player' ? '2player' : 'aiDifficulty')}
+        onShowRules={() => goTo('rules')}
+      />
     );
   }
+
+  if (phase === 'rules') {
+    return (
+      <RulesScreen
+        onBack={() => setPhase('start')}
+        onPlay={() => setPhase('start')}
+      />
+    );
+  }
+
   if (phase === 'aiDifficulty') {
     return (
       <AIDifficultyScreen
-        onSelect={(key) => { setAiDifficulty(key); setPhase('ai'); }}
+        onSelect={(key) => { setAiDifficulty(key); goTo('ai'); }}
         onBack={() => setPhase('start')}
       />
     );
   }
+
   if (phase === '2player') return <TwoPlayerGame />;
   if (phase === 'ai') return <AIGame difficultyKey={aiDifficulty} />;
 
